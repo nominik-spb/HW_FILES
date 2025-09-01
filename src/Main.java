@@ -2,7 +2,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.LocalDateTime;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -125,19 +124,30 @@ public class Main {
 
 
             if (savegames.canWrite()) {
-                saveGame (savegames.getAbsolutePath(),progress1);
-                saveGame (savegames.getAbsolutePath(),progress2);
-                saveGame (savegames.getAbsolutePath(),progress3);
+                saveGame ("D://Games/savegames/save1.dat",progress1);
+                saveGame ("D://Games/savegames/save2.dat",progress2);
+                saveGame ("D://Games/savegames/save3.dat",progress3);
             }
 
     }
 
     public static void saveGame(String filePath, GameProgress progressData) {
 
-            LocalDateTime currentDateTime = LocalDateTime.now();
-            StringBuilder filePathNew = new StringBuilder().append(filePath).append("/save_").append(currentDateTime.toString()).append(".txt");
-            File fileProgress = new File(filePathNew.toString());
-        System.out.println(filePathNew.toString());
+            File fileProgress = new File(filePath.toString());
+        try {
+            if (fileProgress.createNewFile()) {
+                System.out.println("Файл создан");
+                FileOutputStream File = new FileOutputStream(filePath);
+                FileWriter writer = new FileWriter(filePath);
+                writer.write(String.valueOf(File));
+                writer.close();
+            } else {
+                System.out.println("Файл не создан");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+//        System.out.println(filePathNew.toString());
             //FileOutputStream file = new FileOutputStream().;
 
     }
