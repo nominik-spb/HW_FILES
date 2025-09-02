@@ -1,7 +1,7 @@
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -118,37 +118,52 @@ public class Main {
             throw new RuntimeException(e);
         }
 
-        GameProgress progress1 = new GameProgress(50,32,1,325.52);
-        GameProgress progress2 = new GameProgress(20,82,3,526.5);
-        GameProgress progress3 = new GameProgress(10,102,4,744.3);
+        GameProgress progress1 = new GameProgress(50, 32, 1, 325.52);
+        GameProgress progress2 = new GameProgress(20, 82, 3, 526.5);
+        GameProgress progress3 = new GameProgress(10, 102, 4, 744.3);
 
-
-            if (savegames.canWrite()) {
-                saveGame ("D://Games/savegames/save1.dat",progress1);
-                saveGame ("D://Games/savegames/save2.dat",progress2);
-                saveGame ("D://Games/savegames/save3.dat",progress3);
-            }
-
+        ArrayList<String> listProgress = new ArrayList<>();
+        if (savegames.canWrite()) {
+            saveGame("D://Games/savegames/save0.dat", progress1);
+            saveGame("D://Games/savegames/save1.dat", progress2);
+            saveGame("D://Games/savegames/save2.dat", progress3);
+            listProgress.add("D://Games/savegames/save0.dat");
+            listProgress.add("D://Games/savegames/save1.dat");
+            listProgress.add("D://Games/savegames/save2.dat");
+        }
+        zipFiles("D://Games/savegames/zip.zip", listProgress);
     }
 
-    public static void saveGame(String filePath, GameProgress progressData) {
 
-            File fileProgress = new File(filePath.toString());
-        try {
-            if (fileProgress.createNewFile()) {
-                System.out.println("Файл создан");
-                FileOutputStream File = new FileOutputStream(filePath);
-                FileWriter writer = new FileWriter(filePath);
-                writer.write(String.valueOf(File));
-                writer.close();
-            } else {
-                System.out.println("Файл не создан");
-            }
+    public static void saveGame(String filePath, GameProgress progress) {
+
+        try (FileOutputStream fileOut = new FileOutputStream(filePath);
+             ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+            out.writeObject(progress);
+            System.out.println("Файл сохранения создан");
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-//        System.out.println(filePathNew.toString());
-            //FileOutputStream file = new FileOutputStream().;
 
+    }
+
+    public static void zipFiles(String zipFilePath, ArrayList<String> listProgress) {
+
+        try (ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(zipFilePath))) {
+            for (int i = 0; i < listProgress.size(); i++) {
+                String zipFileName = "packed_progress" + i + ".dat";
+                FileInputStream fis = new FileInputStream(listProgress.get(i));
+                ZipEntry entry = new ZipEntry(zipFileName);
+                zout.putNextEntry(entry);
+                byte[] buffer = new byte[fis.available()];
+                fis.read(buffer);
+                zout.write(buffer);
+                zout.closeEntry();
+
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 }
